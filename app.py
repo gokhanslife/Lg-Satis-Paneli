@@ -8,7 +8,7 @@ st.set_page_config(page_title="LG Sales Pro", layout="wide")
 # --- CSS: TÜM GÖRSEL DÜZENLEMELER ---
 st.markdown("""
     <style>
-    /* 1. TÜM KUTU İÇİ YAZILARI BEYAZ YAP */
+    /* 1. KUTU İÇİ YAZILARI BEYAZ YAP */
     input, .stTextInput > div > div > input, .stNumberInput > div > div > input, 
     .stDateInput > div > div > input, .stSelectbox div {
         color: #ffffff !important;
@@ -47,8 +47,13 @@ if 'satislar' not in st.session_state:
 
 # --- YAN MENÜ ---
 with st.sidebar:
-    # ORJİNAL LG LOGOSU
-    st.image("https://upload.wikimedia.org/wikipedia/commons/b/bf/LG_logo.svg", width=120)
+    # LOGO İÇİN HTML KULLANIMI (Daha kararlı çalışır)
+    st.markdown("""
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/LG_logo.svg" width="100">
+        </div>
+    """, unsafe_allow_html=True)
+    
     st.subheader("SATIŞ YÖNETİMİ")
     
     sekme = st.radio("İşlem Seçin:", ["📊 Dashboard & Satış", "📦 Ürün Tanımla"])
