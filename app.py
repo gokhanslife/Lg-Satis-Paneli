@@ -118,6 +118,33 @@ elif sekme == "🎯 Hedef Durumu":
         c3.metric("Tahmini Hedef (%)", f"%{projeksiyon_yuzde:.1f}")
         
         st.info(f"Ayın {gun_sayisi}. günündeyiz. Bu performansla gidilirse ay sonu toplam ciro tahmini {tahmini_ciro:,.0f} TL olup, hedefin %{projeksiyon_yuzde:.1f}'i gerçekleşmiş olacaktır.")
+        
+        # Prim Projeksiyonu Tablosu
+        st.subheader("💰 Model Bazlı Prim Projeksiyonu")
+        df_lg = df[df['Marka'] == "LG"]
+        if not df_lg.empty:
+            proj_list = []
+            for model in df_lg['Model'].unique():
+                if model == "Diğer": continue
+                m_df = df_lg[df_lg['Model'] == model]
+                top_adet = m_df['Adet'].sum()
+                top_prim = m_df['Prim'].sum()
+                birim_prim = top_prim / top_adet if top_adet > 0 else 0
+                
+                tahmin_adet = (top_adet / gun_sayisi) * ay_gun_sayisi
+                tahmin_prim = tahmin_adet * birim_prim
+                
+                proj_list.append({
+                    "Model": model, 
+                    "Mevcut Adet": top_adet,
+                    "Tahmini Ay Sonu Adet": round(tahmin_adet, 1),
+                    "Tahmini Prim (TL)": round(tahmin_prim, 2)
+                })
+            
+            if proj_list:
+                proj_df = pd.DataFrame(proj_list)
+                st.table(proj_df)
+                st.write(f"### **Toplam Tahmini Prim Kazancı: {proj_df['Tahmini Prim (TL)'].sum():,.2f} TL**")
     else:
         st.info("Analiz için yeterli satış verisi girilmemiş.")
 
