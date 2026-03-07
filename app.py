@@ -79,7 +79,7 @@ else:
 
     st.divider()
     
-    # --- ANALİZ TABLOLARI ---
+    # --- ANALİZ BÖLÜMÜ ---
     if not df_s.empty:
         st.subheader("📈 Satış Analizleri (Adet Bazlı)")
         bugun = pd.Timestamp.now()
@@ -87,9 +87,9 @@ else:
         def al(data): return data.groupby('Model')['Adet'].sum().reset_index().sort_values(by='Adet', ascending=False)
         
         col1, col2, col3 = st.columns(3)
-        col1.write("Tüm Zamanlar"); col1.dataframe(al(df_s), use_container_width=True)
-        col2.write("Son 30 Gün"); col2.dataframe(al(df_s[df_s['Tarih'] >= (bugun - pd.Timedelta(days=30))]), use_container_width=True)
-        col3.write("Son 7 Gün"); col3.dataframe(al(df_s[df_s['Tarih'] >= (bugun - pd.Timedelta(days=7))]), use_container_width=True)
+        col1.write("**Tüm Zamanlar**"); col1.dataframe(al(df_s), use_container_width=True)
+        col2.write("**Son 30 Gün**"); col2.dataframe(al(df_s[df_s['Tarih'] >= (bugun - pd.Timedelta(days=30))]), use_container_width=True)
+        col3.write("**Son 7 Gün**"); col3.dataframe(al(df_s[df_s['Tarih'] >= (bugun - pd.Timedelta(days=7))]), use_container_width=True)
     
     st.divider()
     st.subheader("🖋️ Yeni Satış Kaydı")
