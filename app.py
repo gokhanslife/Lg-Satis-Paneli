@@ -5,31 +5,36 @@ from datetime import date
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- CSS: KOYU MOD UYUMU VE BEYAZ YAZILAR ---
+# --- CSS: METRİK KUTULARI VE YAZI RENKLERİ ---
 st.markdown("""
     <style>
-    /* 1. KUTU İÇİ YAZILARI BEYAZ YAP */
+    /* 1. TÜM KUTU İÇİ YAZILARI BEYAZ YAP (Giriş alanları için) */
     input, .stTextInput > div > div > input, .stNumberInput > div > div > input, 
     .stDateInput > div > div > input, .stSelectbox div {
         color: #ffffff !important;
         -webkit-text-fill-color: #ffffff !important;
     }
 
-    /* 2. METRİK KUTUCUKLARI (BEYAZ ARKA PLAN) */
+    /* 2. METRİK KUTUCUKLARI (Beyaz Arka Plan) */
     div[data-testid="stMetric"] {
         background-color: #ffffff !important;
         border: 2px solid #e0e0e0 !important;
         border-radius: 12px;
         padding: 20px !important;
     }
-    div[data-testid="stMetric"] p, div[data-testid="stMetric"] div {
+
+    /* 3. METRİK BAŞLIKLARI (Siyah ve Kalın) */
+    [data-testid="stMetricLabel"] p {
         color: #000000 !important;
+        font-weight: 900 !important;
+        font-size: 1.1rem !important;
     }
 
-    /* 3. RAKAMLAR (LG KIRMZIISI) */
+    /* 4. METRİK DEĞERLERİ (LG Kırmızısı) */
     [data-testid="stMetricValue"] {
         color: #a50034 !important;
         font-weight: 900 !important;
+        font-size: 2rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -57,7 +62,7 @@ if sekme == "📦 Ürün Tanımla":
         if st.form_submit_button("Sisteme Kaydet"):
             yeni = pd.DataFrame([{"Model": m, "Liste_Fiyati": f, "Birim_Prim": p}])
             st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
-            st.success("Ürün başarıyla eklendi.")
+            st.success("Ürün eklendi.")
     st.table(st.session_state.urunler)
 
 # --- SAYFA 2: DASHBOARD ---
@@ -78,7 +83,7 @@ else:
     st.divider()
     st.subheader("🖋️ Yeni Satış Kaydı")
     
-    # DİNAMİK MODEL SEÇİMİ (FORM DIŞINDA)
+    # DİNAMİK MODEL SEÇİMİ
     marka_secim = st.selectbox("Marka", ["LG", "Rakip"])
     def_fiyat, def_prim, secilen_model = 0.0, 0.0, "Diğer"
     
@@ -88,10 +93,7 @@ else:
             secilen_model = st.selectbox("Model Seç", liste)
             bilgi = st.session_state.urunler[st.session_state.urunler['Model'] == secilen_model].iloc[0]
             def_fiyat, def_prim = float(bilgi['Liste_Fiyati']), float(bilgi['Birim_Prim'])
-        else:
-            st.warning("Lütfen önce model ekleyin!")
             
-    # FORM İÇİNDE DİNAMİK DEĞERLERİ KULLANIYORUZ
     with st.form("satis_form", clear_on_submit=True):
         f_tarih = st.date_input("Satış Tarihi", date.today())
         f_fiyat = st.number_input("Satış Fiyatı (TL)", value=def_fiyat)
