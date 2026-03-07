@@ -17,7 +17,7 @@ def check_password():
         sifre = st.text_input("Şifre", type="password")
         
         if st.button("Giriş Yap"):
-            if kullanici == "admin" and sifre == "12345": # Burayı değiştir!
+            if kullanici == "gokhan" and sifre == "825593": # Burayı değiştir!
                 st.session_state.password_correct = True
                 st.rerun()
             else:
