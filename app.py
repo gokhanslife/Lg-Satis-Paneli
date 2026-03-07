@@ -109,20 +109,29 @@ if sekme == "📊 Dashboard & Satış":
         st.session_state.satislar = st.session_state.satislar.drop(idx_sil).reset_index(drop=True)
         st.rerun()
 
+
 # --- SAYFA 2: ANALİZLER ---
 elif sekme == "📊 Satış Analizleri":
     st.header("📈 Satış Analizleri")
     df_s = st.session_state.satislar.copy()
-    if not df_s.empty:
-        df_s['Tarih'] = pd.to_datetime(df_s['Tarih'])
+    
+    # Sadece LG satışlarını filtrele
+    df_lg = df_s[df_s['Marka'] == "LG"].copy()
+    
+    if not df_lg.empty:
+        df_lg['Tarih'] = pd.to_datetime(df_lg['Tarih'])
         bugun = pd.Timestamp.now()
-        def al(data): return data.groupby('Model')['Adet'].sum().reset_index().sort_values(by='Adet', ascending=False)
+        
+        # Sadece LG modellerini gruplayan fonksiyon
+        def al(data): 
+            return data.groupby('Model')['Adet'].sum().reset_index().sort_values(by='Adet', ascending=False)
+            
         col1, col2, col3 = st.columns(3)
-        col1.write("**Tüm Zamanlar**"); col1.dataframe(al(df_s), use_container_width=True)
-        col2.write("**Son 30 Gün**"); col2.dataframe(al(df_s[df_s['Tarih'] >= (bugun - pd.Timedelta(days=30))]), use_container_width=True)
-        col3.write("**Son 7 Gün**"); col3.dataframe(al(df_s[df_s['Tarih'] >= (bugun - pd.Timedelta(days=7))]), use_container_width=True)
+        col1.write("**Tüm Zamanlar**"); col1.dataframe(al(df_lg), use_container_width=True)
+        col2.write("**Son 30 Gün**"); col2.dataframe(al(df_lg[df_lg['Tarih'] >= (bugun - pd.Timedelta(days=30))]), use_container_width=True)
+        col3.write("**Son 7 Gün**"); col3.dataframe(al(df_lg[df_lg['Tarih'] >= (bugun - pd.Timedelta(days=7))]), use_container_width=True)
     else:
-        st.info("Analiz edilecek satış kaydı bulunamadı.")
+        st.info("Analiz edilecek LG satış kaydı bulunamadı.")
 
 # --- SAYFA 3: HEDEF DURUMU (PROJEKSİYON) ---
 elif sekme == "🎯 Hedef Durumu":
