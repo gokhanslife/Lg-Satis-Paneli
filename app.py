@@ -5,10 +5,10 @@ from datetime import date
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- CSS: METRİK KUTULARI VE YAZI RENKLERİ ---
+# --- CSS: TÜM GÖRSEL DÜZENLEMELER ---
 st.markdown("""
     <style>
-    /* 1. TÜM KUTU İÇİ YAZILARI BEYAZ YAP (Giriş alanları için) */
+    /* 1. TÜM KUTU İÇİ YAZILARI BEYAZ YAP */
     input, .stTextInput > div > div > input, .stNumberInput > div > div > input, 
     .stDateInput > div > div > input, .stSelectbox div {
         color: #ffffff !important;
@@ -47,7 +47,10 @@ if 'satislar' not in st.session_state:
 
 # --- YAN MENÜ ---
 with st.sidebar:
+    # ORJİNAL LG LOGOSU
+    st.image("https://upload.wikimedia.org/wikipedia/commons/b/bf/LG_logo.svg", width=120)
     st.subheader("SATIŞ YÖNETİMİ")
+    
     sekme = st.radio("İşlem Seçin:", ["📊 Dashboard & Satış", "📦 Ürün Tanımla"])
     st.divider()
     aylik_hedef = st.number_input("Aylık Hedef (TL)", value=1000000)
@@ -62,7 +65,7 @@ if sekme == "📦 Ürün Tanımla":
         if st.form_submit_button("Sisteme Kaydet"):
             yeni = pd.DataFrame([{"Model": m, "Liste_Fiyati": f, "Birim_Prim": p}])
             st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
-            st.success("Ürün eklendi.")
+            st.success("Ürün başarıyla eklendi.")
     st.table(st.session_state.urunler)
 
 # --- SAYFA 2: DASHBOARD ---
@@ -83,7 +86,6 @@ else:
     st.divider()
     st.subheader("🖋️ Yeni Satış Kaydı")
     
-    # DİNAMİK MODEL SEÇİMİ
     marka_secim = st.selectbox("Marka", ["LG", "Rakip"])
     def_fiyat, def_prim, secilen_model = 0.0, 0.0, "Diğer"
     
