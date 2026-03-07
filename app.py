@@ -32,7 +32,7 @@ if 'satislar' not in st.session_state:
 
 # --- YAN MENÜ ---
 with st.sidebar:
-    st.markdown('<div style="text-align: center;"><img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/LG_logo.svg" width="100"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="text-align: center;"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8d/LG_logo_%282014%29.svg" width="100"></div>', unsafe_allow_html=True)
     st.subheader("SATIŞ YÖNETİMİ")
     sekme = st.radio("İşlem Seçin:", ["📊 Dashboard & Satış", "📦 Ürün Tanımla"])
     st.divider()
