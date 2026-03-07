@@ -5,17 +5,32 @@ from datetime import date
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- RENK VE LOGO DÜZENLEME (CSS) ---
 st.markdown("""
     <style>
-    /* Genel Uygulama Arka Planı Beyaz, Yazılar Siyah */
-    .stApp { background-color: #ffffff; color: #000000; }
+    /* 1. Genel arkaplan beyaz */
+    .stApp { background-color: #ffffff !important; }
     
-    /* Üst Kartlardaki Rakamları LG Kırmızısı Yap */
-    [data-testid="stMetricValue"] { color: #a50034 !important; font-weight: bold; }
-    [data-testid="stMetricLabel"] { color: #333333 !important; }
+    /* 2. TÜM YAZILAR (Formlar, etiketler, başlıklar) SİMSİYAH */
+    html, body, div, p, label, span, h1, h2, h3, .stMarkdown {
+        color: #000000 !important;
+        font-weight: 600 !important;
+    }
+
+    /* 3. ÜST ÖZET BAŞLIKLARI: Koyu Siyah ve Kalın */
+    [data-testid="stMetricLabel"] p {
+        color: #000000 !important;
+        font-size: 16px !important;
+        font-weight: 900 !important;
+    }
+
+    /* 4. ÜST ÖZET DEĞERLERİ: LG Kırmızısı */
+    [data-testid="stMetricValue"] {
+        color: #a50034 !important;
+        font-weight: 800 !important;
+        font-size: 2rem !important;
+    }
     
-    /* Kartların Etrafına Hafif Gri Çerçeve */
+    /* 5. Kartların Görünümü */
     div[data-testid="stMetric"] {
         background-color: #fcfcfc;
         border: 1px solid #eeeeee;
@@ -23,20 +38,19 @@ st.markdown("""
         padding: 15px;
     }
 
-    /* Sol Menüdeki LG Logosu (Kırmızı Yuvarlak) */
+    /* 6. Sol Menüdeki LG Logosu */
     .lg-logo {
-        width: 50px;
-        height: 50px;
+        width: 50px; height: 50px;
         background-color: #a50034;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
+        display: flex; align-items: center; justify-content: center;
+        color: white !important;
         font-weight: bold;
-        font-family: Arial;
         margin-bottom: 10px;
     }
+    
+    /* 7. Input kutuları (yazı rengini sabitle) */
+    input { color: #000000 !important; }
     </style>
     """, unsafe_allow_html=True)
 
