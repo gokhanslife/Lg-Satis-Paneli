@@ -6,8 +6,8 @@ import math
 from supabase import create_client
 
 # --- SUPABASE BAĞLANTISI ---
-URL = "BURAYA_SUPABASE_URL_YAZ"
-KEY = "BURAYA_SUPABASE_ANON_KEY_YAZ"
+URL = "sb_publishable_n2K_RddMLWThF0VGTxmTVQ_ISuUtQQs"
+KEY = "sb_secret_aCfd4l2njislCFox5nBRpA_VaItpbPq"
 supabase = create_client(URL, KEY)
 
 # --- VERİ ÇEKME VE KAYDETME FONKSİYONLARI ---
