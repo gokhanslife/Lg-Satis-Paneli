@@ -5,40 +5,55 @@ from datetime import date
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- CSS: SADECE BAŞLIKLARI KALINLAŞTIRDIĞIMIZ KISIM ---
+# --- CSS: TÜM YAZILAR SİYAH VE BELİRGİN ---
 st.markdown("""
     <style>
-    .stApp { background-color: #ffffff; color: #000000; }
+    /* Genel Uygulama Arka Planı */
+    .stApp { background-color: #ffffff !important; }
     
-    /* Sadece Metrik Başlıklarını Kalın ve Belirgin Yaptık */
-    [data-testid="stMetricLabel"] p { 
-        color: #000000 !important; 
-        font-weight: 900 !important; 
-        font-size: 1.1rem !important; 
+    /* HER YERDEKİ YAZILAR: Simsiyah ve Kalın */
+    html, body, p, label, span, div, h1, h2, h3, .stMarkdown, 
+    .stSelectbox label, .stNumberInput label, .stDateInput label, .stTextInput label {
+        color: #000000 !important;
+        font-weight: 700 !important;
+    }
+
+    /* ÜST ÖZET BAŞLIKLARI: Koyu Siyah ve Çok Kalın */
+    [data-testid="stMetricLabel"] p {
+        color: #000000 !important;
+        font-size: 1.1rem !important;
+        font-weight: 900 !important;
+    }
+
+    /* ÜST ÖZET DEĞERLERİ: LG Kırmızısı */
+    [data-testid="stMetricValue"] {
+        color: #a50034 !important;
+        font-weight: 800 !important;
+        font-size: 2rem !important;
     }
     
-    [data-testid="stMetricValue"] { color: #a50034 !important; font-weight: bold; }
-    
+    /* Kartların Etrafına Hafif Gri Çerçeve */
     div[data-testid="stMetric"] {
         background-color: #fcfcfc;
-        border: 1px solid #eeeeee;
-        border-radius: 10px;
+        border: 2px solid #eeeeee;
+        border-radius: 12px;
         padding: 15px;
     }
 
+    /* Sol Menüdeki LG Logosu */
     .lg-logo {
-        width: 50px;
-        height: 50px;
+        width: 60px; height: 60px;
         background-color: #a50034;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-family: Arial;
-        margin-bottom: 10px;
+        display: flex; align-items: center; justify-content: center;
+        color: white !important;
+        font-weight: bold; font-family: Arial;
+        margin-bottom: 20px;
+        font-size: 20px;
     }
+    
+    /* Giriş kutularındaki yazı rengi */
+    input { color: #000000 !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -48,7 +63,7 @@ if 'urunler' not in st.session_state:
 if 'satislar' not in st.session_state:
     st.session_state.satislar = pd.DataFrame(columns=["Tarih", "Marka", "Model", "Ciro", "Prim", "Adet", "Not"])
 
-# --- YAN MENÜ (SIDEBAR) ---
+# --- YAN MENÜ ---
 with st.sidebar:
     st.markdown('<div class="lg-logo">LG</div>', unsafe_allow_html=True)
     st.subheader("SATIŞ YÖNETİMİ")
@@ -113,22 +128,4 @@ else:
             
             final_ciro = f_fiyat * f_adet
             final_prim = f_prim * f_adet
-            final_model = secilen if secilen else "Belirsiz"
-        else:
-            final_model = "Diğer"
-            final_ciro = st.number_input("Rakip Toplam Satış Cirosu", min_value=0)
-            f_adet = st.number_input("Adet", min_value=1, value=1)
-            final_prim = 0
-            
-        f_not = st.text_input("Not")
-        
-        if st.form_submit_button("SATIŞI GİR"):
-            y_satis = pd.DataFrame([{
-                "Tarih": f_tarih, "Marka": marka_secim, "Model": final_model, 
-                "Ciro": final_ciro, "Prim": final_prim, "Adet": f_adet, "Not": f_not
-            }])
-            st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
-            st.rerun()
-
-    st.subheader("📋 Satış Listesi")
-    st.dataframe(df_s, use_container_width=True)
+            final_
