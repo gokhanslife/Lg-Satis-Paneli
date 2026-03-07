@@ -5,46 +5,40 @@ from datetime import date
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- CSS: HÜCRELERİ VE METİNLERİ YÖNETME ---
+# --- CSS: TÜM YAZILAR SİYAH VE BELİRGİN ---
 st.markdown("""
     <style>
-    /* Uygulama Genel */
     .stApp { background-color: #ffffff !important; }
-    
-    /* GENEL YAZILAR SİYAH */
     html, body, p, label, span, div, h1, h2, h3, .stMarkdown, 
     .stSelectbox label, .stNumberInput label, .stDateInput label, .stTextInput label {
         color: #000000 !important;
         font-weight: 700 !important;
     }
-
-    /* ÜST ÖZET BAŞLIKLARI */
     [data-testid="stMetricLabel"] p {
         color: #000000 !important;
         font-size: 1.1rem !important;
         font-weight: 900 !important;
     }
-    
-    /* ÜST ÖZET DEĞERLERİ */
     [data-testid="stMetricValue"] {
         color: #a50034 !important;
         font-weight: 800 !important;
         font-size: 2rem !important;
     }
-
-    /* DATAFRAME HÜCRELERİ: BEYAZ YAZI */
-    [data-testid="stDataFrameResizable"] div[data-testid="stDataFrameView"] {
-        color: #ffffff !important;
-        background-color: #333333 !important; /* Arka planı koyulaştırdık ki beyaz yazı okunsun */
+    div[data-testid="stMetric"] {
+        background-color: #fcfcfc;
+        border: 2px solid #eeeeee;
+        border-radius: 12px;
+        padding: 15px;
     }
-
     .lg-logo {
         width: 60px; height: 60px;
         background-color: #a50034;
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         color: white !important;
-        font-weight: bold; margin-bottom: 20px; font-size: 20px;
+        font-weight: bold; font-family: Arial;
+        margin-bottom: 20px;
+        font-size: 20px;
     }
     input { color: #000000 !important; }
     </style>
@@ -75,7 +69,7 @@ if sekme == "📦 Ürün Tanımla":
             yeni = pd.DataFrame([{"Model": m, "Liste_Fiyati": f, "Birim_Prim": p}])
             st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
             st.success("Ürün başarıyla listeye eklendi.")
-    st.dataframe(st.session_state.urunler, use_container_width=True)
+    st.table(st.session_state.urunler)
 
 # --- SAYFA 2 ---
 else:
@@ -123,6 +117,7 @@ else:
             
         f_not = st.text_input("Not")
         
+        # BUTON FORMUN İÇİNDE:
         if st.form_submit_button("SATIŞI GİR"):
             y_satis = pd.DataFrame([{
                 "Tarih": f_tarih, "Marka": marka_secim, "Model": final_model, 
