@@ -5,17 +5,20 @@ from datetime import date
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- RENK VE LOGO DÜZENLEME (CSS) ---
+# --- CSS: SADECE BAŞLIKLARI KALINLAŞTIRDIĞIMIZ KISIM ---
 st.markdown("""
     <style>
-    /* Genel Uygulama Arka Planı Beyaz, Yazılar Siyah */
     .stApp { background-color: #ffffff; color: #000000; }
     
-    /* Üst Kartlardaki Rakamları LG Kırmızısı Yap */
-    [data-testid="stMetricValue"] { color: #a50034 !important; font-weight: bold; }
-    [data-testid="stMetricLabel"] { color: #333333 !important; }
+    /* Sadece Metrik Başlıklarını Kalın ve Belirgin Yaptık */
+    [data-testid="stMetricLabel"] p { 
+        color: #000000 !important; 
+        font-weight: 900 !important; 
+        font-size: 1.1rem !important; 
+    }
     
-    /* Kartların Etrafına Hafif Gri Çerçeve */
+    [data-testid="stMetricValue"] { color: #a50034 !important; font-weight: bold; }
+    
     div[data-testid="stMetric"] {
         background-color: #fcfcfc;
         border: 1px solid #eeeeee;
@@ -23,7 +26,6 @@ st.markdown("""
         padding: 15px;
     }
 
-    /* Sol Menüdeki LG Logosu (Kırmızı Yuvarlak) */
     .lg-logo {
         width: 50px;
         height: 50px;
@@ -48,7 +50,6 @@ if 'satislar' not in st.session_state:
 
 # --- YAN MENÜ (SIDEBAR) ---
 with st.sidebar:
-    # Kırmızı Yuvarlak Logo Alanı
     st.markdown('<div class="lg-logo">LG</div>', unsafe_allow_html=True)
     st.subheader("SATIŞ YÖNETİMİ")
     
@@ -73,7 +74,6 @@ if sekme == "📦 Ürün Tanımla":
 
 # --- SAYFA 2: DASHBOARD & SATIŞ ---
 else:
-    # Üst Özet Kartları
     df_s = st.session_state.satislar
     lg_c = df_s[df_s['Marka'] == "LG"]['Ciro'].sum()
     rk_c = df_s[df_s['Marka'] == "Rakip"]['Ciro'].sum()
@@ -89,7 +89,6 @@ else:
 
     st.divider()
 
-    # SATIŞ GİRİŞ FORMU
     st.subheader("🖋️ Yeni Satış Kaydı")
     marka_secim = st.selectbox("Marka", ["LG", "Rakip"])
     
@@ -97,7 +96,6 @@ else:
         f_tarih = st.date_input("Satış Tarihi", date.today())
         
         if marka_secim == "LG":
-            # Kütüphaneden modelleri çek
             liste = st.session_state.urunler['Model'].tolist()
             if not liste:
                 st.warning("Lütfen önce 'Ürün Tanımla' kısmından model ekleyin!")
