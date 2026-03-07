@@ -5,26 +5,30 @@ import calendar
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
-# --- BASİT GİRİŞ EKRANI ---
+# --- GÜNCELLENMİŞ GİRİŞ EKRANI (BENİ HATIRLA ÖZELLİKLİ) ---
 def check_password():
-    """Giriş kontrolü fonksiyonu"""
     if "password_correct" not in st.session_state:
         st.session_state.password_correct = False
 
-    if not st.session_state.password_correct:
-        # Burada kullanıcı adı ve şifreni belirle
-        kullanici = st.text_input("Kullanıcı Adı")
-        sifre = st.text_input("Şifre", type="password")
-        
-        if st.button("Giriş Yap"):
-            if kullanici == "gokhan" and sifre == "825593": # Burayı değiştir!
-                st.session_state.password_correct = True
-                st.rerun()
-            else:
-                st.error("Kullanıcı adı veya şifre hatalı!")
-        st.stop()  # Giriş yapılmadıysa uygulamanın devamını durdur
+    # Eğer daha önce giriş başarılıysa ve "Beni Hatırla" işaretliyse şifre sorma
+    if st.session_state.password_correct:
+        return
 
-check_password()
+    st.title("🔐 LG Sales Pro - Giriş")
+    kullanici = st.text_input("Kullanıcı Adı")
+    sifre = st.text_input("Şifre", type="password")
+    beni_hatirla = st.checkbox("Beni Hatırla")
+    
+    if st.button("Giriş Yap"):
+        if kullanici == "gokhan" and sifre == "825593": # Burayı değiştir!
+            st.session_state.password_correct = True
+            st.rerun()
+        else:
+            st.error("Kullanıcı adı veya şifre hatalı!")
+    
+    # Giriş yapılmadıysa uygulamanın devamını durdur
+    if not st.session_state.password_correct:
+        st.stop()
 
 # --- CSS ---
 st.markdown("""
