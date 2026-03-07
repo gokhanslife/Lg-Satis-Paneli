@@ -3,111 +3,122 @@ import pandas as pd
 from datetime import date
 
 # --- SAYFA AYARLARI ---
-st.set_page_config(page_title="LG Sales Master", layout="wide")
+st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- KOYU TEMA VE OKUNABİLİRLİK AYARI (CSS) ---
+# --- GÖRÜNÜRLÜK VE STİL AYARLARI (TAM OKUNABİLİRLİK) ---
 st.markdown("""
     <style>
-    [data-testid="stMetricValue"] { color: #a50034 !important; font-weight: bold; }
-    [data-testid="stMetricLabel"] { color: #333333 !important; font-size: 1.1rem; }
-    .stApp { background-color: #f8f9fa; }
+    /* Metin Renkleri Fix */
+    label, p, span, div { color: #1e1e1e !important; font-weight: 500; }
+    .stMetric label { color: #555555 !important; }
+    [data-testid="stMetricValue"] { color: #a50034 !important; font-size: 2rem !important; }
+    
+    /* Kart Tasarımları */
     div[data-testid="stMetric"] {
-        background-color: white;
-        padding: 20px;
-        border-radius: 15px;
-        border-left: 5px solid #a50034;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        background-color: #ffffff;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    /* Giriş Kutuları Arka Planı */
+    .stNumberInput input, .stTextInput input, .stSelectbox div {
+        background-color: #ffffff !important;
+        border: 1px solid #cccccc !important;
+        color: #000000 !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- VERİ SAKLAMA (Session State) ---
+# --- VERİ SAKLAMA ---
 if 'urunler' not in st.session_state:
     st.session_state.urunler = pd.DataFrame(columns=["Model", "Liste_Fiyati", "Birim_Prim"])
 if 'satislar' not in st.session_state:
     st.session_state.satislar = pd.DataFrame(columns=["Tarih", "Marka", "Model", "Ciro", "Prim", "Adet", "Not"])
 
-# --- SOL PANEL: YÖNETİM ---
+# --- YAN MENÜ ---
 with st.sidebar:
-    st.title("🔴 LG YÖNETİM")
-    sekme = st.radio("Git:", ["📊 Dashboard & Satış Gir", "📦 Ürün Kütüphanesi"])
+    st.header("🔴 LG MENÜ")
+    sekme = st.radio("Sayfa Değiştir:", ["📊 Satış Dashboard", "📦 Model Ekle/Sil"])
     st.divider()
     aylik_hedef = st.number_input("Aylık Ciro Hedefin (TL)", value=1000000)
 
-# --- SAYFA 1: ÜRÜN KÜTÜPHANESİ ---
-if sekme == "📦 Ürün Kütüphanesi":
-    st.header("Yeni Model Tanımla")
-    with st.form("urun_ekle"):
-        y_model = st.text_input("Model Adı (Örn: 65C5)")
-        y_fiyat = st.number_input("Liste Fiyatı", min_value=0)
-        y_prim = st.number_input("Adet Başı Prim", min_value=0)
-        if st.form_submit_button("Kütüphaneye Ekle"):
-            yeni_u = pd.DataFrame([{"Model": y_model, "Liste_Fiyati": y_fiyat, "Birim_Prim": y_prim}])
-            st.session_state.urunler = pd.concat([st.session_state.urunler, yeni_u], ignore_index=True)
-            st.success("Model eklendi!")
+# --- 1. SAYFA: MODEL YÖNETİMİ ---
+if sekme == "📦 Model Ekle/Sil":
+    st.subheader("Yeni Model Tanımla")
+    with st.form("yeni_urun"):
+        m = st.text_input("Model İsmi")
+        f = st.number_input("Standart Fiyat", min_value=0)
+        p = st.number_input("Adet Başı Prim", min_value=0)
+        if st.form_submit_button("Kütüphaneye Kaydet"):
+            yeni = pd.DataFrame([{"Model": m, "Liste_Fiyati": f, "Birim_Prim": p}])
+            st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
+            st.success(f"{m} başarıyla eklendi.")
     
-    st.subheader("Kayıtlı Modeller")
-    st.table(st.session_state.urunler)
+    st.write("Kayıtlı Modellerin:")
+    st.dataframe(st.session_state.urunler, use_container_width=True)
 
-# --- SAYFA 2: DASHBOARD & SATIŞ ---
+# --- 2. SAYFA: DASHBOARD & SATIŞ ---
 else:
     # Üst Özet Kartları
     df_s = st.session_state.satislar
     lg_c = df_s[df_s['Marka'] == "LG"]['Ciro'].sum()
     rk_c = df_s[df_s['Marka'] == "Rakip"]['Ciro'].sum()
-    top_p = lg_c + rk_c
-    p_payi = (lg_c / top_p * 100) if top_p > 0 else 0
+    p_payi = (lg_c / (lg_c + rk_c) * 100) if (lg_c + rk_c) > 0 else 0
     t_prim = df_s['Prim'].sum()
     
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("LG Toplam Ciro", f"{lg_c:,.0f} TL")
+    c1.metric("LG Cirosu", f"{lg_c:,.0f} TL")
     c2.metric("Pazar Payı", f"%{p_payi:.1f}")
     c3.metric("Toplam Prim", f"{t_prim:,.0f} TL")
     c4.metric("Hedef Durumu", f"%{(lg_c/aylik_hedef*100):.1f}")
 
     st.divider()
 
-    # Satış Giriş Formu
-    st.subheader("➕ Yeni Satış Girişi")
-    islem = st.selectbox("Marka Seç", ["LG", "Rakip"])
+    # SATIŞ GİRİŞ FORMU
+    st.subheader("🖋️ Satış Kaydı Oluştur")
+    marka_secim = st.selectbox("Satılan Marka", ["LG", "Rakip"])
     
     with st.form("satis_form", clear_on_submit=True):
-        f_tarih = st.date_input("Tarih", date.today())
+        f_tarih = st.date_input("Satış Tarihi", date.today())
         
-        if islem == "LG":
-            # Kütüphanedeki modelleri getir
-            modeller = st.session_state.urunler['Model'].tolist()
-            secilen_model = st.selectbox("Model Seç", ["Manuel Gir"] + modeller)
+        if marka_secim == "LG":
+            # Kütüphaneden modelleri çek
+            liste = st.session_state.urunler['Model'].tolist()
+            secilen = st.selectbox("Model Seç", liste if liste else ["Lütfen önce model ekleyin"])
             
-            # Otomatik Değerleri Çek
-            varsayilan_fiyat = 0
-            varsayilan_prim = 0
-            if secilen_model != "Manuel Gir":
-                row = st.session_state.urunler[st.session_state.urunler['Model'] == secilen_model].iloc[0]
-                varsayilan_fiyat = row['Liste_Fiyati']
-                varsayilan_prim = row['Birim_Prim']
+            # Otomatik Değerleri Bul
+            if liste:
+                bilgi = st.session_state.urunler[st.session_state.urunler['Model'] == secilen].iloc[0]
+                def_fiyat = float(bilgi['Liste_Fiyati'])
+                def_prim = float(bilgi['Birim_Prim'])
+            else:
+                def_fiyat, def_prim = 0.0, 0.0
             
-            f_model = st.text_input("Model Teyit/Manuel", value=secilen_model)
-            f_fiyat = st.number_input("Satış Fiyatı", value=float(varsayilan_fiyat))
-            f_prim = st.number_input("Birim Prim", value=float(varsayilan_prim))
+            # Form Alanları
+            f_fiyat = st.number_input("Satış Fiyatı (TL)", value=def_fiyat)
+            f_prim = st.number_input("Birim Prim (TL)", value=def_prim)
             f_adet = st.number_input("Adet", min_value=1, value=1)
-            f_ciro = f_fiyat * f_adet
-            f_toplam_prim = f_prim * f_adet
+            
+            final_ciro = f_fiyat * f_adet
+            final_prim = f_prim * f_adet
+            final_model = secilen
         else:
-            f_model = "Diğer"
-            f_ciro = st.number_input("Toplam Ciro (TL)", min_value=0)
+            final_model = "Rakip TV"
+            final_ciro = st.number_input("Toplam Rakip Satış Cirosu", min_value=0)
             f_adet = st.number_input("Adet", min_value=1, value=1)
-            f_toplam_prim = 0
+            final_prim = 0
             
-        f_not = st.text_input("Not")
+        f_not = st.text_input("Notlar")
         
-        if st.form_submit_button("Kaydet"):
-            yeni_s = pd.DataFrame([{
-                "Tarih": f_tarih, "Marka": islem, "Model": f_model, 
-                "Ciro": f_ciro, "Prim": f_toplam_prim, "Adet": f_adet, "Not": f_not
+        if st.form_submit_button("SATIŞI KAYDET"):
+            y_satis = pd.DataFrame([{
+                "Tarih": f_tarih, "Marka": marka_secim, "Model": final_model, 
+                "Ciro": final_ciro, "Prim": final_prim, "Adet": f_adet, "Not": f_not
             }])
-            st.session_state.satislar = pd.concat([st.session_state.satislar, yeni_s], ignore_index=True)
+            st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
             st.rerun()
 
-    st.subheader("📋 Satış Geçmişi")
-    st.dataframe(df_s, use_container_width=True)
+    st.subheader("📋 Kayıt Geçmişi")
+    st.dataframe(df_s.sort_values(by="Tarih", ascending=False), use_container_width=True)
