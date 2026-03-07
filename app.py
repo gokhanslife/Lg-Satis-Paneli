@@ -91,7 +91,9 @@ if sekme == "📊 Dashboard & Satış":
         def_fiyat, def_prim = float(bilgi['Liste_Fiyati']), float(bilgi['Birim_Prim'])
             
     with st.form("satis_form", clear_on_submit=True):
-        f_tarih = st.date_input("Satış Tarihi", date.today())
+# Eski hali: f_tarih = st.date_input("Satış Tarihi", date.today())
+        # Yeni hali (Her zaman güncel tarihi çeker):
+        f_tarih = st.date_input("Satış Tarihi", value=date.today())
         f_fiyat = st.number_input("Satış Fiyatı (TL)", value=def_fiyat)
         f_prim = st.number_input("Adet Başı Prim (TL)", value=def_prim)
         f_adet = st.number_input("Adet", min_value=1, value=1)
