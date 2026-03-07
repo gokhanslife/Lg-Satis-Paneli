@@ -6,25 +6,6 @@ import calendar
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- GİRİŞ EKRANI FONKSİYONU ---
-def check_password():
-    if "password_correct" not in st.session_state:
-        st.session_state.password_correct = False
-
-    if not st.session_state.password_correct:
-        st.title("🔐 LG Sales Pro - Giriş")
-        kullanici = st.text_input("Kullanıcı Adı")
-        sifre = st.text_input("Şifre", type="password")
-        if st.button("Giriş Yap"):
-            if kullanici == "admin" and sifre == "12345": # Burayı değiştir!
-                st.session_state.password_correct = True
-                st.rerun()
-            else:
-                st.error("Kullanıcı adı veya şifre hatalı!")
-        st.stop()
-
-check_password()
-
 # --- CSS ---
 st.markdown("""
     <style>
@@ -138,6 +119,7 @@ elif sekme == "🎯 Hedef Durumu":
         
         st.info(f"Ayın {gun_sayisi}. günündeyiz. Bu performansla gidilirse ay sonu toplam ciro tahmini {tahmini_ciro:,.0f} TL olup, hedefin %{projeksiyon_yuzde:.1f}'i gerçekleşmiş olacaktır.")
         
+        # Prim Projeksiyonu Tablosu
         st.subheader("💰 Model Bazlı Prim Projeksiyonu")
         df_lg = df[df['Marka'] == "LG"]
         if not df_lg.empty:
@@ -162,4 +144,25 @@ elif sekme == "🎯 Hedef Durumu":
             if proj_list:
                 proj_df = pd.DataFrame(proj_list)
                 st.table(proj_df)
-                st.write(f"### **Toplam Tahmini Prim Kazancı: {proj_df['Tahmini Prim
+                st.write(f"### **Toplam Tahmini Prim Kazancı: {proj_df['Tahmini Prim (TL)'].sum():,.2f} TL**")
+    else:
+        st.info("Analiz için yeterli satış verisi girilmemiş.")
+
+# --- SAYFA 4: ÜRÜN TANIMLAMA ---
+else:
+    st.header("Yeni Model Ekle")
+    with st.form("urun_ekle"):
+        m = st.text_input("Model İsmi")
+        f = st.number_input("Liste Fiyatı", min_value=0.0)
+        p = st.number_input("Adet Başı Prim", min_value=0.0)
+        if st.form_submit_button("Sisteme Kaydet"):
+            yeni = pd.DataFrame([{"Model": m, "Liste_Fiyati": f, "Birim_Prim": p}])
+            st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
+            st.rerun()
+    st.subheader("Mevcut Modeller")
+    st.session_state.urunler = st.data_editor(st.session_state.urunler, use_container_width=True)
+    c1, c2 = st.columns([3, 1])
+    silinecek = c1.selectbox("Silinecek Model", st.session_state.urunler['Model'].unique())
+    if c2.button("Ürünü Sil"):
+        st.session_state.urunler = st.session_state.urunler[st.session_state.urunler['Model'] != silinecek]
+        st.rerun()
