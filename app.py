@@ -155,26 +155,26 @@ elif sekme == "🎯 Hedef Durumu":
         
         st.info(f"Ayın {gun_sayisi}. günündeyiz. Bu performansla gidilirse ay sonu toplam ciro tahmini {tahmini_ciro:,.0f} TL olup, hedefin %{projeksiyon_yuzde:.1f}'i gerçekleşmiş olacaktır.")
         
-   # --- MODEL BAZLI PRİM PROJEKSİYONU ---
+# --- MODEL BAZLI PRİM PROJEKSİYONU ---
         st.subheader("💰 Model Bazlı Prim Projeksiyonu")
         df_lg = df[df['Marka'] == "LG"]
         if not df_lg.empty:
             proj_list = []
             for model in df_lg['Model'].unique():
                 if model == "Diğer": continue
-                m_df = df_lg[df_lg['Marka'] == model]
+                m_df = df_lg[df_lg['Model'] == model]
                 top_adet = m_df['Adet'].sum()
                 top_prim = m_df['Prim'].sum()
                 birim_prim = top_prim / top_adet if top_adet > 0 else 0
                 
-                # Tahmini adet hesaplaması
-                tahmin_adet = (top_adet / gun_sayisi) * ay_gun_sayisi
+                # Tahmini adet hesaplaması (Yukarı yuvarlayarak tam sayı yaptık)
+                tahmin_adet = (top_adet / guncel_gun) * ay_gun_sayisi
                 tahmin_prim = tahmin_adet * birim_prim
                 
                 proj_list.append({
                     "Model": model, 
                     "Mevcut Adet": top_adet,
-                    "Tahmini Ay Sonu Adet": int(tahmin_adet), # int() ile küsuratı tamamen attık, tam sayıya çevirdik
+                    "Tahmini Ay Sonu Adet": math.ceil(tahmin_adet),
                     "Tahmini Prim (TL)": round(tahmin_prim, 2)
                 })
             
@@ -182,6 +182,8 @@ elif sekme == "🎯 Hedef Durumu":
                 proj_df = pd.DataFrame(proj_list)
                 st.table(proj_df)
                 st.write(f"### **Toplam Tahmini Prim Kazancı: {proj_df['Tahmini Prim (TL)'].sum():,.2f} TL**")
+    else:
+        st.info("Analiz için yeterli satış verisi girilmemiş.")
 
 # --- SAYFA 4: ÜRÜN TANIMLAMA ---
 else:
