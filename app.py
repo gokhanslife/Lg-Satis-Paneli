@@ -51,10 +51,8 @@ if sekme == "📦 Ürün Tanımla":
             st.rerun()
     
     st.subheader("Mevcut Modeller")
-    # Düzenlenebilir Tablo
     st.session_state.urunler = st.data_editor(st.session_state.urunler, use_container_width=True)
     
-    # Silme Arayüzü
     c1, c2 = st.columns([3, 1])
     silinecek = c1.selectbox("Silinecek Model", st.session_state.urunler['Model'].unique())
     if c2.button("Ürünü Sil"):
@@ -63,7 +61,10 @@ if sekme == "📦 Ürün Tanımla":
 
 # --- SAYFA 2: DASHBOARD ---
 else:
-    df_s = st.session_state.satislar
+    df_s = st.session_state.satislar.copy()
+    if not df_s.empty:
+        df_s['Tarih'] = pd.to_datetime(df_s['Tarih'])
+    
     lg_c = df_s[df_s['Marka'] == "LG"]['Ciro'].sum() if not df_s.empty else 0
     rk_c = df_s[df_s['Marka'] == "Rakip"]['Ciro'].sum() if not df_s.empty else 0
     top_c = lg_c + rk_c
@@ -77,34 +78,22 @@ else:
     c4.metric("Hedef Durumu", f"%{(lg_c/aylik_hedef*100):.1f}")
 
     st.divider()
+    
+    # --- ANALİZ TABLOLARI ---
+    if not df_s.empty:
+        st.subheader("📈 Satış Analizleri (Adet Bazlı)")
+        bugun = pd.Timestamp.now()
+        
+        def al(data): return data.groupby('Model')['Adet'].sum().reset_index().sort_values(by='Adet', ascending=False)
+        
+        col1, col2, col3 = st.columns(3)
+        col1.write("Tüm Zamanlar"); col1.dataframe(al(df_s), use_container_width=True)
+        col2.write("Son 30 Gün"); col2.dataframe(al(df_s[df_s['Tarih'] >= (bugun - pd.Timedelta(days=30))]), use_container_width=True)
+        col3.write("Son 7 Gün"); col3.dataframe(al(df_s[df_s['Tarih'] >= (bugun - pd.Timedelta(days=7))]), use_container_width=True)
+    
+    st.divider()
     st.subheader("🖋️ Yeni Satış Kaydı")
     marka_secim = st.selectbox("Marka", ["LG", "Rakip"])
     def_fiyat, def_prim, secilen_model = 0.0, 0.0, "Diğer"
-    if marka_secim == "LG":
-        liste = st.session_state.urunler['Model'].tolist()
-        if liste:
-            secilen_model = st.selectbox("Model Seç", liste)
-            bilgi = st.session_state.urunler[st.session_state.urunler['Model'] == secilen_model].iloc[0]
-            def_fiyat, def_prim = float(bilgi['Liste_Fiyati']), float(bilgi['Birim_Prim'])
-            
-    with st.form("satis_form", clear_on_submit=True):
-        f_tarih = st.date_input("Satış Tarihi", date.today())
-        f_fiyat = st.number_input("Satış Fiyatı (TL)", value=def_fiyat)
-        f_prim = st.number_input("Adet Başı Prim (TL)", value=def_prim)
-        f_adet = st.number_input("Adet", min_value=1, value=1)
-        f_not = st.text_input("Not")
-        if st.form_submit_button("SATIŞI GİR"):
-            y_satis = pd.DataFrame([{"Tarih": f_tarih, "Marka": marka_secim, "Model": secilen_model, "Ciro": f_fiyat * f_adet, "Prim": f_prim * f_adet, "Adet": f_adet, "Not": f_not}])
-            st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
-            st.rerun()
-
-    st.subheader("📋 Satış Listesi")
-    # Düzenlenebilir Satış Tablosu
-    st.session_state.satislar = st.data_editor(st.session_state.satislar, use_container_width=True)
-    
-    # Satış Satır Silme
-    c1, c2 = st.columns([3, 1])
-    idx_sil = c1.number_input("Silinecek Satır No", min_value=0, max_value=len(st.session_state.satislar)-1 if not st.session_state.satislar.empty else 0)
-    if c2.button("Satırı Sil"):
-        st.session_state.satislar = st.session_state.satislar.drop(idx_sil).reset_index(drop=True)
-        st.rerun()
+    if marka_secim == "LG" and not st.session_state.urunler.empty:
+        secilen_model = st.selectbox("Model Seç", st.session_state.urunler['Model'].
