@@ -5,28 +5,44 @@ from datetime import date
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- RENK VE LOGO DÜZENLEME (CSS) ---
+# --- KESİN ÇÖZÜM: TÜM YAZILARI SİYAHA ÇEKİYORUZ ---
 st.markdown("""
     <style>
-    /* Genel Uygulama Arka Planı Beyaz, Yazılar Siyah */
-    .stApp { background-color: #ffffff; color: #000000; }
-    
-    /* Üst Kartlardaki Rakamları LG Kırmızısı Yap */
-    [data-testid="stMetricValue"] { color: #a50034 !important; font-weight: bold; }
-    [data-testid="stMetricLabel"] { color: #333333 !important; }
+    /* Uygulama Genel Arka Planı */
+    .stApp { background-color: #ffffff; }
+
+    /* TÜM FORM ETİKETLERİ VE YAZILAR: Siyah ve Kalın */
+    label, p, span, .stMarkdown, .stSelectbox label, .stNumberInput label, .stDateInput label {
+        color: #000000 !important;
+        font-weight: 600 !important;
+        opacity: 1 !important;
+    }
+
+    /* ÜST ÖZET BAŞLIKLARI (Metric Labels) */
+    [data-testid="stMetricLabel"] {
+        color: #000000 !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+    }
+
+    /* ÜST ÖZET DEĞERLERİ (Metric Values) - LG KIRMIZISI */
+    [data-testid="stMetricValue"] {
+        color: #a50034 !important;
+        font-weight: 800 !important;
+    }
     
     /* Kartların Etrafına Hafif Gri Çerçeve */
     div[data-testid="stMetric"] {
         background-color: #fcfcfc;
-        border: 1px solid #eeeeee;
-        border-radius: 10px;
+        border: 2px solid #eeeeee;
+        border-radius: 12px;
         padding: 15px;
     }
 
     /* Sol Menüdeki LG Logosu (Kırmızı Yuvarlak) */
     .lg-logo {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
         background-color: #a50034;
         border-radius: 50%;
         display: flex;
@@ -34,9 +50,13 @@ st.markdown("""
         justify-content: center;
         color: white;
         font-weight: bold;
-        font-family: Arial;
-        margin-bottom: 10px;
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        border: 2px solid #800028;
     }
+
+    /* Input kutularının içindeki yazıların siyah olması */
+    input { color: #000000 !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -48,9 +68,8 @@ if 'satislar' not in st.session_state:
 
 # --- YAN MENÜ (SIDEBAR) ---
 with st.sidebar:
-    # Kırmızı Yuvarlak Logo Alanı
     st.markdown('<div class="lg-logo">LG</div>', unsafe_allow_html=True)
-    st.subheader("SATIŞ YÖNETİMİ")
+    st.markdown("<h2 style='color:black;'>SATIŞ YÖNETİMİ</h2>", unsafe_allow_html=True)
     
     sekme = st.radio("İşlem Seçin:", ["📊 Dashboard & Satış", "📦 Ürün Tanımla"])
     st.divider()
@@ -58,17 +77,17 @@ with st.sidebar:
 
 # --- SAYFA 1: ÜRÜN TANIMLAMA ---
 if sekme == "📦 Ürün Tanımla":
-    st.header("Yeni Model Ekle")
+    st.markdown("<h1 style='color:black;'>Yeni Model Ekle</h1>", unsafe_allow_html=True)
     with st.form("urun_ekle"):
         m = st.text_input("Model İsmi (Örn: 55QNED81)")
-        f = st.number_input("Standart Liste Fiyatı", min_value=0)
-        p = st.number_input("Adet Başı Prim", min_value=0)
+        f = st.number_input("Standart Liste Fiyatı", min_value=0.0)
+        p = st.number_input("Adet Başı Prim", min_value=0.0)
         if st.form_submit_button("Sisteme Kaydet"):
             yeni = pd.DataFrame([{"Model": m, "Liste_Fiyati": f, "Birim_Prim": p}])
             st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
             st.success("Ürün başarıyla listeye eklendi.")
     
-    st.write("Mevcut Modeller:")
+    st.markdown("<h3 style='color:black;'>Mevcut Modeller:</h3>", unsafe_allow_html=True)
     st.table(st.session_state.urunler)
 
 # --- SAYFA 2: DASHBOARD & SATIŞ ---
@@ -90,47 +109,17 @@ else:
     st.divider()
 
     # SATIŞ GİRİŞ FORMU
-    st.subheader("🖋️ Yeni Satış Kaydı")
-    marka_secim = st.selectbox("Marka", ["LG", "Rakip"])
+    st.markdown("<h2 style='color:black;'>🖋️ Yeni Satış Kaydı</h2>", unsafe_allow_html=True)
+    marka_secim = st.selectbox("Marka Seçiniz", ["LG", "Rakip"])
     
     with st.form("satis_form", clear_on_submit=True):
         f_tarih = st.date_input("Satış Tarihi", date.today())
         
         if marka_secim == "LG":
-            # Kütüphaneden modelleri çek
             liste = st.session_state.urunler['Model'].tolist()
             if not liste:
                 st.warning("Lütfen önce 'Ürün Tanımla' kısmından model ekleyin!")
-                secilen = None
-                def_fiyat, def_prim = 0.0, 0.0
+                final_model, def_fiyat, def_prim = "Yok", 0.0, 0.0
             else:
-                secilen = st.selectbox("Model Seç", liste)
+                secilen = st.selectbox("Model Seçiniz", liste)
                 bilgi = st.session_state.urunler[st.session_state.urunler['Model'] == secilen].iloc[0]
-                def_fiyat = float(bilgi['Liste_Fiyati'])
-                def_prim = float(bilgi['Birim_Prim'])
-            
-            f_fiyat = st.number_input("Satış Fiyatı (TL)", value=def_fiyat)
-            f_prim = st.number_input("Adet Başı Prim (TL)", value=def_prim)
-            f_adet = st.number_input("Adet", min_value=1, value=1)
-            
-            final_ciro = f_fiyat * f_adet
-            final_prim = f_prim * f_adet
-            final_model = secilen if secilen else "Belirsiz"
-        else:
-            final_model = "Diğer"
-            final_ciro = st.number_input("Rakip Toplam Satış Cirosu", min_value=0)
-            f_adet = st.number_input("Adet", min_value=1, value=1)
-            final_prim = 0
-            
-        f_not = st.text_input("Not")
-        
-        if st.form_submit_button("SATIŞI GİR"):
-            y_satis = pd.DataFrame([{
-                "Tarih": f_tarih, "Marka": marka_secim, "Model": final_model, 
-                "Ciro": final_ciro, "Prim": final_prim, "Adet": f_adet, "Not": f_not
-            }])
-            st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
-            st.rerun()
-
-    st.subheader("📋 Satış Listesi")
-    st.dataframe(df_s, use_container_width=True)
