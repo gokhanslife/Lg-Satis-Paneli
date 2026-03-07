@@ -155,7 +155,7 @@ elif sekme == "🎯 Hedef Durumu":
         
         st.info(f"Ayın {gun_sayisi}. günündeyiz. Bu performansla gidilirse ay sonu toplam ciro tahmini {tahmini_ciro:,.0f} TL olup, hedefin %{projeksiyon_yuzde:.1f}'i gerçekleşmiş olacaktır.")
         
-# --- MODEL BAZLI PRİM PROJEKSİYONU ---
+        # Prim Projeksiyonu Tablosu
         st.subheader("💰 Model Bazlı Prim Projeksiyonu")
         df_lg = df[df['Marka'] == "LG"]
         if not df_lg.empty:
@@ -167,14 +167,13 @@ elif sekme == "🎯 Hedef Durumu":
                 top_prim = m_df['Prim'].sum()
                 birim_prim = top_prim / top_adet if top_adet > 0 else 0
                 
-                # Tahmini adet hesaplaması (Yukarı yuvarlayarak tam sayı yaptık)
-                tahmin_adet = (top_adet / guncel_gun) * ay_gun_sayisi
+                tahmin_adet = (top_adet / gun_sayisi) * ay_gun_sayisi
                 tahmin_prim = tahmin_adet * birim_prim
                 
                 proj_list.append({
                     "Model": model, 
                     "Mevcut Adet": top_adet,
-                    "Tahmini Ay Sonu Adet": math.ceil(tahmin_adet),
+                    "Tahmini Ay Sonu Adet": round(tahmin_adet, 1),
                     "Tahmini Prim (TL)": round(tahmin_prim, 2)
                 })
             
