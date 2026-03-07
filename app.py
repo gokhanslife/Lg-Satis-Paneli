@@ -50,7 +50,7 @@ with st.sidebar:
     # LOGO İÇİN HTML KULLANIMI (Daha kararlı çalışır)
     st.markdown("""
         <div style="text-align: center; margin-bottom: 20px;">
-            <img src="https://commons.wikimedia.org/wiki/File:LG_logo_%282014%29.svg" width="100">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/8d/LG_logo_%282014%29.svg" width="100">
         </div>
     """, unsafe_allow_html=True)
     
