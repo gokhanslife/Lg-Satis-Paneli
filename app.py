@@ -114,4 +114,5 @@ else:
     c1, c2 = st.columns([3, 1])
     silinecek = c1.selectbox("Silinecek Model", st.session_state.urunler['Model'].unique())
     if c2.button("Ürünü Sil"):
-        st.session_state.urunler = st.session_state.urunler[st
+        st.session_state.urunler = st.session_state.urunler[st.session_state.urunler['Model'] != silinecek]
+        st.rerun()
