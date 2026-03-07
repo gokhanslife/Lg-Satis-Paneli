@@ -5,7 +5,7 @@ from datetime import date
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
-# --- CSS: TÜM GÖRSEL DÜZENLEMELER ---
+# --- CSS ---
 st.markdown("""
     <style>
     input, .stTextInput > div > div > input, .stNumberInput > div > div > input, 
@@ -34,7 +34,7 @@ if 'satislar' not in st.session_state:
 with st.sidebar:
     st.markdown('<div style="text-align: center;"><img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/LG_logo.svg" width="100"></div>', unsafe_allow_html=True)
     st.subheader("SATIŞ YÖNETİMİ")
-    sekme = st.radio("İşlem Seçin:", ["📊 Dashboard & Satış", "📦 Ürün Tanımla", "🗑️ Kayıt Yönetimi"])
+    sekme = st.radio("İşlem Seçin:", ["📊 Dashboard & Satış", "📦 Ürün Tanımla"])
     st.divider()
     aylik_hedef = st.number_input("Aylık Hedef (TL)", value=1000000)
 
@@ -48,11 +48,21 @@ if sekme == "📦 Ürün Tanımla":
         if st.form_submit_button("Sisteme Kaydet"):
             yeni = pd.DataFrame([{"Model": m, "Liste_Fiyati": f, "Birim_Prim": p}])
             st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
-            st.success("Ürün eklendi.")
-    st.table(st.session_state.urunler)
+            st.rerun()
+    
+    st.subheader("Mevcut Modeller")
+    # Düzenlenebilir Tablo
+    st.session_state.urunler = st.data_editor(st.session_state.urunler, use_container_width=True)
+    
+    # Silme Arayüzü
+    c1, c2 = st.columns([3, 1])
+    silinecek = c1.selectbox("Silinecek Model", st.session_state.urunler['Model'].unique())
+    if c2.button("Ürünü Sil"):
+        st.session_state.urunler = st.session_state.urunler[st.session_state.urunler['Model'] != silinecek]
+        st.rerun()
 
 # --- SAYFA 2: DASHBOARD ---
-elif sekme == "📊 Dashboard & Satış":
+else:
     df_s = st.session_state.satislar
     lg_c = df_s[df_s['Marka'] == "LG"]['Ciro'].sum() if not df_s.empty else 0
     rk_c = df_s[df_s['Marka'] == "Rakip"]['Ciro'].sum() if not df_s.empty else 0
@@ -88,22 +98,13 @@ elif sekme == "📊 Dashboard & Satış":
             st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
             st.rerun()
 
-# --- SAYFA 3: KAYIT YÖNETİMİ (SİLME) ---
-else:
-    st.header("🗑️ Veri Yönetimi")
-    c_sil, s_sil = st.columns(2)
-    with c_sil:
-        st.subheader("Ürün Sil")
-        silinecek_urun = st.selectbox("Silinecek Model", st.session_state.urunler['Model'].unique())
-        if st.button("Ürünü Sil"):
-            st.session_state.urunler = st.session_state.urunler[st.session_state.urunler['Model'] != silinecek_urun]
-            st.rerun()
-    with s_sil:
-        st.subheader("Satış Sil")
-        idx_sil = st.selectbox("Silinecek Satış Satır No", st.session_state.satislar.index)
-        if st.button("Satışı Sil"):
-            st.session_state.satislar = st.session_state.satislar.drop(idx_sil)
-            st.rerun()
-    st.divider()
-    st.subheader("📋 Güncel Satış Listesi")
-    st.dataframe(st.session_state.satislar, use_container_width=True)
+    st.subheader("📋 Satış Listesi")
+    # Düzenlenebilir Satış Tablosu
+    st.session_state.satislar = st.data_editor(st.session_state.satislar, use_container_width=True)
+    
+    # Satış Satır Silme
+    c1, c2 = st.columns([3, 1])
+    idx_sil = c1.number_input("Silinecek Satır No", min_value=0, max_value=len(st.session_state.satislar)-1 if not st.session_state.satislar.empty else 0)
+    if c2.button("Satırı Sil"):
+        st.session_state.satislar = st.session_state.satislar.drop(idx_sil).reset_index(drop=True)
+        st.rerun()
