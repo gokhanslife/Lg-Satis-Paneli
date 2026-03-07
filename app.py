@@ -5,6 +5,26 @@ import calendar
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
+# --- BASİT GİRİŞ EKRANI ---
+def check_password():
+    """Giriş kontrolü fonksiyonu"""
+    if "password_correct" not in st.session_state:
+        st.session_state.password_correct = False
+
+    if not st.session_state.password_correct:
+        # Burada kullanıcı adı ve şifreni belirle
+        kullanici = st.text_input("Kullanıcı Adı")
+        sifre = st.text_input("Şifre", type="password")
+        
+        if st.button("Giriş Yap"):
+            if kullanici == "admin" and sifre == "12345": # Burayı değiştir!
+                st.session_state.password_correct = True
+                st.rerun()
+            else:
+                st.error("Kullanıcı adı veya şifre hatalı!")
+        st.stop()  # Giriş yapılmadıysa uygulamanın devamını durdur
+
+check_password()
 
 # --- CSS ---
 st.markdown("""
