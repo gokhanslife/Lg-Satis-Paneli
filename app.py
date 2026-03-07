@@ -8,34 +8,19 @@ st.set_page_config(page_title="LG Sales Pro", layout="wide")
 # --- CSS: TÜM GÖRSEL DÜZENLEMELER ---
 st.markdown("""
     <style>
-    /* 1. KUTU İÇİ YAZILARI BEYAZ YAP */
     input, .stTextInput > div > div > input, .stNumberInput > div > div > input, 
     .stDateInput > div > div > input, .stSelectbox div {
         color: #ffffff !important;
         -webkit-text-fill-color: #ffffff !important;
     }
-
-    /* 2. METRİK KUTUCUKLARI (Beyaz Arka Plan) */
     div[data-testid="stMetric"] {
         background-color: #ffffff !important;
         border: 2px solid #e0e0e0 !important;
         border-radius: 12px;
         padding: 20px !important;
     }
-
-    /* 3. METRİK BAŞLIKLARI (Siyah ve Kalın) */
-    [data-testid="stMetricLabel"] p {
-        color: #000000 !important;
-        font-weight: 900 !important;
-        font-size: 1.1rem !important;
-    }
-
-    /* 4. METRİK DEĞERLERİ (LG Kırmızısı) */
-    [data-testid="stMetricValue"] {
-        color: #a50034 !important;
-        font-weight: 900 !important;
-        font-size: 2rem !important;
-    }
+    [data-testid="stMetricLabel"] p { color: #000000 !important; font-weight: 900 !important; font-size: 1.1rem !important; }
+    [data-testid="stMetricValue"] { color: #a50034 !important; font-weight: 900 !important; font-size: 2rem !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -47,16 +32,9 @@ if 'satislar' not in st.session_state:
 
 # --- YAN MENÜ ---
 with st.sidebar:
-    # LOGO İÇİN HTML KULLANIMI (Daha kararlı çalışır)
-    st.markdown("""
-        <div style="text-align: center; margin-bottom: 20px;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/8/8d/LG_logo_%282014%29.svg" width="100">
-        </div>
-    """, unsafe_allow_html=True)
-    
+    st.markdown('<div style="text-align: center;"><img src="https://upload.wikimedia.org/wikipedia/commons/b/bf/LG_logo.svg" width="100"></div>', unsafe_allow_html=True)
     st.subheader("SATIŞ YÖNETİMİ")
-    
-    sekme = st.radio("İşlem Seçin:", ["📊 Dashboard & Satış", "📦 Ürün Tanımla"])
+    sekme = st.radio("İşlem Seçin:", ["📊 Dashboard & Satış", "📦 Ürün Tanımla", "🗑️ Kayıt Yönetimi"])
     st.divider()
     aylik_hedef = st.number_input("Aylık Hedef (TL)", value=1000000)
 
@@ -70,11 +48,11 @@ if sekme == "📦 Ürün Tanımla":
         if st.form_submit_button("Sisteme Kaydet"):
             yeni = pd.DataFrame([{"Model": m, "Liste_Fiyati": f, "Birim_Prim": p}])
             st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
-            st.success("Ürün başarıyla eklendi.")
+            st.success("Ürün eklendi.")
     st.table(st.session_state.urunler)
 
 # --- SAYFA 2: DASHBOARD ---
-else:
+elif sekme == "📊 Dashboard & Satış":
     df_s = st.session_state.satislar
     lg_c = df_s[df_s['Marka'] == "LG"]['Ciro'].sum() if not df_s.empty else 0
     rk_c = df_s[df_s['Marka'] == "Rakip"]['Ciro'].sum() if not df_s.empty else 0
@@ -90,10 +68,8 @@ else:
 
     st.divider()
     st.subheader("🖋️ Yeni Satış Kaydı")
-    
     marka_secim = st.selectbox("Marka", ["LG", "Rakip"])
     def_fiyat, def_prim, secilen_model = 0.0, 0.0, "Diğer"
-    
     if marka_secim == "LG":
         liste = st.session_state.urunler['Model'].tolist()
         if liste:
@@ -107,15 +83,27 @@ else:
         f_prim = st.number_input("Adet Başı Prim (TL)", value=def_prim)
         f_adet = st.number_input("Adet", min_value=1, value=1)
         f_not = st.text_input("Not")
-        
         if st.form_submit_button("SATIŞI GİR"):
-            y_satis = pd.DataFrame([{
-                "Tarih": f_tarih, "Marka": marka_secim, "Model": secilen_model, 
-                "Ciro": f_fiyat * f_adet, "Prim": f_prim * f_adet, 
-                "Adet": f_adet, "Not": f_not
-            }])
+            y_satis = pd.DataFrame([{"Tarih": f_tarih, "Marka": marka_secim, "Model": secilen_model, "Ciro": f_fiyat * f_adet, "Prim": f_prim * f_adet, "Adet": f_adet, "Not": f_not}])
             st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
             st.rerun()
 
-    st.subheader("📋 Satış Listesi")
-    st.dataframe(df_s, use_container_width=True)
+# --- SAYFA 3: KAYIT YÖNETİMİ (SİLME) ---
+else:
+    st.header("🗑️ Veri Yönetimi")
+    c_sil, s_sil = st.columns(2)
+    with c_sil:
+        st.subheader("Ürün Sil")
+        silinecek_urun = st.selectbox("Silinecek Model", st.session_state.urunler['Model'].unique())
+        if st.button("Ürünü Sil"):
+            st.session_state.urunler = st.session_state.urunler[st.session_state.urunler['Model'] != silinecek_urun]
+            st.rerun()
+    with s_sil:
+        st.subheader("Satış Sil")
+        idx_sil = st.selectbox("Silinecek Satış Satır No", st.session_state.satislar.index)
+        if st.button("Satışı Sil"):
+            st.session_state.satislar = st.session_state.satislar.drop(idx_sil)
+            st.rerun()
+    st.divider()
+    st.subheader("📋 Güncel Satış Listesi")
+    st.dataframe(st.session_state.satislar, use_container_width=True)
