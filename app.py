@@ -64,19 +64,22 @@ with st.sidebar:
     aylik_hedef = st.number_input("Aylık Hedef (TL)", value=1000000)
 
 # --- SAYFA 1: DASHBOARD & SATIŞ ---
+
 if sekme == "📊 Dashboard & Satış":
     df_s = st.session_state.satislar.copy()
     lg_c = df_s[df_s['Marka'] == "LG"]['Ciro'].sum() if not df_s.empty else 0
     rk_c = df_s[df_s['Marka'] == "Rakip"]['Ciro'].sum() if not df_s.empty else 0
-    top_c = lg_c + rk_c
+    top_c = lg_c + rk_c  # Burası senin istediğin "Reyon Cirosu"
     p_payi = (lg_c / top_c * 100) if top_c > 0 else 0
     t_prim = df_s['Prim'].sum() if not df_s.empty else 0
     
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("LG Cirosu", f"{lg_c:,.0f} TL")
-    c2.metric("Pazar Payı", f"%{p_payi:.1f}")
-    c3.metric("Toplam Prim", f"{t_prim:,.0f} TL")
-    c4.metric("Hedef Durumu", f"%{(lg_c/aylik_hedef*100):.1f}")
+    # 5 sütun olarak güncelledim
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("Reyon Cirosu", f"{top_c:,.0f} TL") # Yeni eklenen metrik
+    c2.metric("LG Cirosu", f"{lg_c:,.0f} TL")
+    c3.metric("Pazar Payı", f"%{p_payi:.1f}")
+    c4.metric("Toplam Prim", f"{t_prim:,.0f} TL")
+    c5.metric("Hedef Durumu", f"%{(lg_c/aylik_hedef*100):.1f}")
 
     st.divider()
     st.subheader("🖋️ Yeni Satış Kaydı")
