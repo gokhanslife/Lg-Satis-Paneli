@@ -2,7 +2,27 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 import calendar
+# --- VERİ YÜKLEME VE KAYDETME FONKSİYONLARI ---
+import os
 
+def veriyi_yukle():
+    if os.path.exists('satislar.csv'):
+        return pd.read_csv('satislar.csv')
+    return pd.DataFrame(columns=["Tarih", "Marka", "Model", "Ciro", "Prim", "Adet", "Not"])
+
+def veriyi_kaydet(df):
+    df.to_csv('satislar.csv', index=False)
+
+# --- BAŞLANGIÇTA YÜKLE ---
+if 'satislar' not in st.session_state:
+    st.session_state.satislar = veriyi_yukle()
+
+# --- SATIŞ GİRME BUTONUNUN İÇİNE ---
+        if st.form_submit_button("SATIŞI GİR"):
+            y_satis = pd.DataFrame([{"Tarih": f_tarih, "Marka": marka_secim, "Model": secilen_model, "Ciro": f_fiyat * f_adet, "Prim": f_prim * f_adet, "Adet": f_adet, "Not": f_not}])
+            st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
+            veriyi_kaydet(st.session_state.satislar) # VERİYİ DOSYAYA YAZ!
+            st.rerun()
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
