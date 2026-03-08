@@ -119,6 +119,9 @@ if sekme == "📊 Dashboard & Satış":
         f_adet = st.number_input("Adet", min_value=1, value=1)
         f_not = st.text_input("Not")
         if st.form_submit_button("SATIŞI GİR"):
+ y_satis = pd.DataFrame([{"Tarih": f_tarih, "Marka": marka_secim, "Model": secilen_model, "Ciro": f_fiyat * f_adet, "Prim": f_prim * f_adet, "Adet": f_adet, "Not": f_not}])
+            st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
+            st.rerun()
 
 
 
