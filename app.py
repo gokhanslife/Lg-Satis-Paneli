@@ -10,6 +10,10 @@ KEY = st.secrets["SUPABASE_KEY"]
 supabase = create_client(URL, KEY)
 
 # --- VERİ ÇEKME VE KAYDETME FONKSİYONLARI ---
+def veri_ekle(tablo, data):
+    # 'data' burada bir sözlük olmalı: {"Model": "LG OLED", "Liste_Fiyati": 1000, "Birim_Prim": 50}
+    supabase.table(tablo).insert(data).execute()
+
 def veri_cek(tablo):
     response = supabase.table(tablo).select("*").execute()
     return pd.DataFrame(response.data)
@@ -41,6 +45,21 @@ check_password()
 
 # --- CSS (Senin Tasarımın) ---
 st.markdown("""<style>...</style>""", unsafe_allow_html=True)
+elif sekme == "📦 Ürün Tanımla":
+    st.header("📦 Yeni Model Ekle")
+    with st.form("urun_ekle"):
+        m = st.text_input("Model İsmi")
+        f = st.number_input("Liste Fiyatı", min_value=0.0)
+        p = st.number_input("Adet Başı Prim", min_value=0.0)
+        if st.form_submit_button("Sisteme Kaydet"):
+            # Veriyi Supabase'e gönderiyoruz
+            veri_ekle("urunler", {"Model": m, "Liste_Fiyati": f, "Birim_Prim": p})
+            st.success("Model başarıyla kaydedildi!")
+            st.rerun()
+            
+    st.subheader("Mevcut Modeller")
+    df_urunler = veri_cek("urunler") # Veritabanından çek
+    st.dataframe(df_urunler) # Listele
 
 # --- YAN MENÜ ---
 with st.sidebar:
