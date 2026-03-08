@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "civic-polymer-489601-s5",
+  "private_key_id": "899f46b7e745831339cb8be220ba5f7e3be63e25",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDYqfkvtvjFBnpx\niUmwyx9FHzfmNW7h/L1awdV17lmi+pD9gbm82WvGkAETy22m5yWy6cxZpAPVQZOr\n4nw3EznjQAV8dzGLDZ5Vg9R72mQkovtJ5VlIhfjwqwaOgiOCTO05+tFm9J0sJGB7\niN1EJ55crvbGhOrpQu+QJrL/ZGEQm21P1eA2l36ASD/xvzxPw+3JfXba1ztVqZq3\n++eiLVVvidKwFVK/mZT0mty1/D5/ROk/Qlu6C5rqq0tw2tQToSkmPxtQLlTKNtUx\nui5cnzDxuBXs0siY/8QDdas8dCnRQh30D4ofOr/VpoMfYrJ9mDOkoQ4KxcTug1Pi\n5X5+4JTPAgMBAAECggEAEU3y2olx5Gth8FtHZbwbZieaDQqbraeRFUR7WlafYlTb\n3q6m2VTBXS1xAJYHTt5eriPEaZM5dFj79+CR2WSknQ6NQZ8gqsGU/n4WEVxK3xUE\n6yZ+ICMFhzp82BLANK7hmMQvesCy8VMbp57+eR9aI362TZQd62QOtfcsf0xfmkLo\nVlxs69ZEN2Fk5zTFAN5yVFhQrIgqXhhrPx7NieT+nvWIC1VFq3P1I/l+LDMQFCii\nNeW774lxWhID/V/5h1HoUNVX+T9Yy2zmqdoM5xsHWWjilHGlTjrD3PS4khheW+rG\nR28yZTO1XYkvAAt8SMXcCjeAAtlZyb1ktBDXpSmLvQKBgQD+z25Q/7VdUz5O3KTt\n9qlcUh3wfy49VUT3wt3GNJdRpMnL1MDUnfedbzuA9ZfGWQT2yAms26YvtD5+Ljok\nmOZs7CENnUTbUZ07D8R6zKXgIhjS/c5KV+xCJDzE+BzN1BU6i3tsZr8T6tmDuxIF\nsM2gCO5/2BXPGbLXg12BvVpV0wKBgQDZrPJvXgKs5Pyf9VzZm3b+tT6jV/czhg4N\naLlyAmCvQamwtO5zWIziBPZk79YnDIEBmy0wI6p1RvokuSOHgIw4y0shvywa3A9T\nF0mOgwB84VrC3cBwn+zcRdUWHi+iKwFrPuAyORZAlgffGy73UEddelDSJ0sp4734\n065Tbkc7lQKBgEZyhPZh6/uUUyqsd/DOfD5o+ZwPHXKZi4rQVk5BJgDNhXkUJgfi\ncJ4XLaVWwRJ2dBficEJZK9YOiCSMlUie+T3t/qlr7KiSJN06W8DzqXyRELnsr8cA\nDfKvYBm42wXQ99mKzKHIulVAXci8xJvMKN1w+rdfv4/VdAt/Zy/CcSI/AoGBAIbm\nNoysH05Uzva20acOQM2TN1F1h36H2peWyi6MqKyULfyT9J7JRu4fky90ryweBKkh\nKP0HbXEm3oj5r7ofAUeFPXeZiVTQAjNFYFGQgDHkWyIe2U8y3VCZengtlumSa1uy\naLDXTiISmKg8qXudZczZq9LBhURdnnLhhMyxsDWNAoGALa87+3W2p/wfRxejMDUD\ns5wdjpAnelBeVrH0dgRycdS48gETNJ1VIiz+/p5qnUH4cS5T8GOqRhD1y6QW/CtH\nJrfc0wnUUR4ZDUw+X/KlozKP3u44BWGaMMFhDSYVm54PyRL7QBsKN2N2vf7Tj7nn\nbtwLKK2dSCbwFwzG7bR64JI=\n-----END PRIVATE KEY-----\n",
+  "client_email": "lg-satis-bot@civic-polymer-489601-s5.iam.gserviceaccount.com",
+  "client_id": "103331796031753748395",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/lg-satis-bot%40civic-polymer-489601-s5.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
