@@ -2,6 +2,28 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 import calendar
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
+
+# Google Sheets'e bağlan
+def baglan():
+    scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets',
+             "https://www.googleapis.com/auth/drive"]
+    creds = ServiceAccountCredentials.from_json_keyfile_name('gizli-anahtar.json', scope)
+    client = gspread.authorize(creds)
+    return client.open("LG_Satis_Verileri")
+
+# Veriyi oku
+def oku(sayfa_adi):
+    sh = baglan()
+    return pd.DataFrame(sh.worksheet(sayfa_adi).get_all_records())
+
+# Veriyi yaz (Listeyi tamamen Sheets'e aktarır)
+def yaz(df, sayfa_adi):
+    sh = baglan()
+    ws = sh.worksheet(sayfa_adi)
+    ws.clear()
+    ws.update([df.columns.values.tolist()] + df.values.tolist())
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
