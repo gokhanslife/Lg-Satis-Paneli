@@ -122,7 +122,8 @@ if sekme == "📊 Dashboard & Satış":
             y_satis = pd.DataFrame([{"Tarih": f_tarih, "Marka": marka_secim, "Model": secilen_model, "Ciro": f_fiyat * f_adet, "Prim": f_prim * f_adet, "Adet": f_adet, "Not": f_not}])
             st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
             st.rerun()
-
+st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
+yaz(st.session_state.satislar, "Satışlar") # İşte veri artık Sheets'e gitti!
     st.subheader("📋 Satış Listesi")
     st.session_state.satislar = st.data_editor(st.session_state.satislar, use_container_width=True)
     c1, c2 = st.columns([3, 1])
