@@ -119,18 +119,7 @@ if sekme == "📊 Dashboard & Satış":
         f_adet = st.number_input("Adet", min_value=1, value=1)
         f_not = st.text_input("Not")
         if st.form_submit_button("SATIŞI GİR"):
-            y_satis = pd.DataFrame([{"Tarih": f_tarih, "Marka": marka_secim, "Model": secilen_model, "Ciro": f_fiyat * f_adet, "Prim": f_prim * f_adet, "Adet": f_adet, "Not": f_not}])
-            st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
-            st.rerun()
-st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
-yaz(st.session_state.satislar, "Satışlar") # İşte veri artık Sheets'e gitti!
-    st.subheader("📋 Satış Listesi")
-    st.session_state.satislar = st.data_editor(st.session_state.satislar, use_container_width=True)
-    c1, c2 = st.columns([3, 1])
-    idx_sil = c1.number_input("Silinecek Satır No", min_value=0, max_value=len(st.session_state.satislar)-1 if not st.session_state.satislar.empty else 0)
-    if c2.button("Satırı Sil"):
-        st.session_state.satislar = st.session_state.satislar.drop(idx_sil).reset_index(drop=True)
-        st.rerun()
+
 
 
 # --- SAYFA 2: ANALİZLER ---
