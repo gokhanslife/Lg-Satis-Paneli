@@ -7,8 +7,9 @@ from supabase import create_client
 
 # --- SUPABASE BAĞLANTISI ---
 # Bilgileri artık Streamlit Secrets'tan çekiyoruz (Güvenli)
-URL = st.secrets["https://nnvgedsfgjilbpsnlufx.supabase.co"]
-KEY = st.secrets["sb_publishable_n2K_RddMLWThF0VGTxmTVQ_ISuUtQQs"]
+# Hatalı olan satırları sil ve şunu yaz:
+URL = st.secrets["SUPABASE_URL"]
+KEY = st.secrets["SUPABASE_KEY"]
 supabase = create_client(URL, KEY)
 
 # --- VERİ İŞLEMLERİ ---
