@@ -30,28 +30,19 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- VERİ YÜKLEME (TELEFON HAFIZASINDAN) ---
-# Ürünleri çek
 if 'urunler' not in st.session_state:
     saved_urunler = local_storage.getItem("lg_urunler")
-    if saved_urunler:
-        st.session_state.urunler = pd.DataFrame(saved_urunler)
-    else:
-        st.session_state.urunler = pd.DataFrame(columns=["Model", "Liste_Fiyati", "Birim_Prim"])
+    st.session_state.urunler = pd.DataFrame(saved_urunler) if saved_urunler else pd.DataFrame(columns=["Model", "Liste_Fiyati", "Birim_Prim"])
 
-# Satışları çek
 if 'satislar' not in st.session_state:
     saved_satislar = local_storage.getItem("lg_satislar")
-    if saved_satislar:
-        st.session_state.satislar = pd.DataFrame(saved_satislar)
-    else:
-        st.session_state.satislar = pd.DataFrame(columns=["Tarih", "Marka", "Model", "Ciro", "Prim", "Adet", "Not"])
+    st.session_state.satislar = pd.DataFrame(saved_satislar) if saved_satislar else pd.DataFrame(columns=["Tarih", "Marka", "Model", "Ciro", "Prim", "Adet", "Not"])
 
 # --- YAN MENÜ ---
 with st.sidebar:
     st.markdown('<div style="text-align: center;"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8d/LG_logo_%282014%29.svg" width="100"></div>', unsafe_allow_html=True)
     st.subheader("SATIŞ YÖNETİMİ")
     sekme = st.radio("İşlem Seçin:", ["📊 Dashboard & Satış", "📊 Satış Analizleri", "🎯 Hedef Durumu", "📦 Ürün Tanımla"])
-    st.divider()
     aylik_hedef = st.number_input("Aylık Hedef (TL)", value=1000000)
 
 # --- SAYFA 1: DASHBOARD & SATIŞ ---
@@ -70,7 +61,6 @@ if sekme == "📊 Dashboard & Satış":
     c4.metric("Toplam Prim", f"{t_prim:,.0f} TL")
     c5.metric("Hedef Durumu", f"%{(lg_c/aylik_hedef*100):.1f}")
 
-    st.divider()
     st.subheader("🖋️ Yeni Satış Kaydı")
     marka_secim = st.selectbox("Marka", ["LG", "Rakip"])
     def_fiyat, def_prim, secilen_model = 0.0, 0.0, "Diğer"
@@ -90,59 +80,20 @@ if sekme == "📊 Dashboard & Satış":
         if st.form_submit_button("SATIŞI GİR"):
             y_satis = pd.DataFrame([{"Tarih": str(f_tarih), "Marka": marka_secim, "Model": secilen_model, "Ciro": f_fiyat * f_adet, "Prim": f_prim * f_adet, "Adet": f_adet, "Not": f_not}])
             st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
-            # TELEFONA KAYDET
             local_storage.setItem("lg_satislar", st.session_state.satislar.to_dict('records'))
             st.rerun()
 
     st.subheader("📋 Satış Listesi")
     st.session_state.satislar = st.data_editor(st.session_state.satislar, use_container_width=True)
-    
-    c1, c2 = st.columns([3, 1])
-    idx_sil = c1.number_input("Silinecek Satır No", min_value=0, max_value=len(st.session_state.satislar)-1 if not st.session_state.satislar.empty else 0)
-    if c2.button("Satırı Sil"):
-        st.session_state.satislar = st.session_state.satislar.drop(idx_sil).reset_index(drop=True)
-        local_storage.setItem("lg_satislar", st.session_state.satislar.to_dict('records'))
-        st.rerun()
-
-# --- SAYFA 2: ANALİZLER ---
-elif sekme == "📊 Satış Analizleri":
-    st.header("📈 Satış Analizleri")
-    df_s = st.session_state.satislar.copy()
-    df_lg = df_s[df_s['Marka'] == "LG"].copy()
-    
-    if not df_lg.empty:
-        df_lg['Tarih'] = pd.to_datetime(df_lg['Tarih'])
-        bugun = pd.Timestamp.now()
-        def al(data): 
-            return data.groupby('Model')['Adet'].sum().reset_index().sort_values(by='Adet', ascending=False)
-        col1, col2, col3 = st.columns(3)
-        col1.write("**Tüm Zamanlar**"); col1.dataframe(al(df_lg), use_container_width=True)
-        col2.write("**Son 30 Gün**"); col2.dataframe(al(df_lg[df_lg['Tarih'] >= (bugun - pd.Timedelta(days=30))]), use_container_width=True)
-        col3.write("**Son 7 Gün**"); col3.dataframe(al(df_lg[df_lg['Tarih'] >= (bugun - pd.Timedelta(days=7))]), use_container_width=True)
-    else:
-        st.info("Analiz edilecek LG satış kaydı bulunamadı.")
-
-# --- SAYFA 3: HEDEF DURUMU ---
-elif sekme == "🎯 Hedef Durumu":
-    st.header("🎯 Hedef Gerçekleştirme Projeksiyonu")
     if not st.session_state.satislar.empty:
-        df = st.session_state.satislar.copy()
-        df['Tarih'] = pd.to_datetime(df['Tarih'])
-        lg_ciro = df[df['Marka'] == "LG"]['Ciro'].sum()
-        bugun = date.today()
-        gun_sayisi = bugun.day
-        ay_gun_sayisi = calendar.monthrange(bugun.year, bugun.month)[1]
-        tahmini_ciro = (lg_ciro / gun_sayisi) * ay_gun_sayisi
-        projeksiyon_yuzde = (tahmini_ciro / aylik_hedef) * 100
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Şu Ana Kadar", f"{lg_ciro:,.0f} TL")
-        c2.metric("Ay Sonu Tahmini", f"{tahmini_ciro:,.0f} TL")
-        c3.metric("Tahmini Hedef (%)", f"%{projeksiyon_yuzde:.1f}")
-    else:
-        st.info("Analiz için yeterli satış verisi girilmemiş.")
+        idx_sil = st.number_input("Silinecek Satır No", min_value=0, max_value=len(st.session_state.satislar)-1)
+        if st.button("Satırı Sil"):
+            st.session_state.satislar = st.session_state.satislar.drop(idx_sil).reset_index(drop=True)
+            local_storage.setItem("lg_satislar", st.session_state.satislar.to_dict('records'))
+            st.rerun()
 
 # --- SAYFA 4: ÜRÜN TANIMLAMA ---
-else:
+elif sekme == "📦 Ürün Tanımla":
     st.header("📦 Yeni Model Ekle")
     with st.form("urun_ekle"):
         m = st.text_input("Model İsmi")
@@ -151,16 +102,14 @@ else:
         if st.form_submit_button("Sisteme Kaydet"):
             yeni = pd.DataFrame([{"Model": m, "Liste_Fiyati": f, "Birim_Prim": p}])
             st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
-            # TELEFONA KAYDET
             local_storage.setItem("lg_urunler", st.session_state.urunler.to_dict('records'))
             st.rerun()
     
     st.subheader("Mevcut Modeller")
     st.session_state.urunler = st.data_editor(st.session_state.urunler, use_container_width=True)
-    c1, c2 = st.columns([3, 1])
     if not st.session_state.urunler.empty:
-        silinecek = c1.selectbox("Silinecek Model", st.session_state.urunler['Model'].unique())
-        if c2.button("Ürünü Sil"):
+        silinecek = st.selectbox("Silinecek Model", st.session_state.urunler['Model'].unique())
+        if st.button("Ürünü Sil"):
             st.session_state.urunler = st.session_state.urunler[st.session_state.urunler['Model'] != silinecek]
             local_storage.setItem("lg_urunler", st.session_state.urunler.to_dict('records'))
             st.rerun()
