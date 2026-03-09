@@ -4,4 +4,3 @@ supabase
 gspread
 oauth2client
 streamlit-local-storage
-st-local-storage
