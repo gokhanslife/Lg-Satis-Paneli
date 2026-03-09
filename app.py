@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 import calendar
-from st_local_storage import LocalStorage
-
+from streamlit_local_storage import LocalStorage
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
 
