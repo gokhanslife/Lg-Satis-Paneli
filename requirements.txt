@@ -3,3 +3,4 @@ pandas
 supabase
 gspread
 oauth2client
+streamlit-local-storage
