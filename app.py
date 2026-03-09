@@ -4,27 +4,19 @@ from datetime import date
 import calendar
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import json # Bu yeni eklendi
 
-# --- GOOGLE SHEETS BAĞLANTISI ---
+# --- GOOGLE SHEETS BAĞLANTISI (YENİ GÜVENLİ YÖNTEM) ---
 def get_sheets_client():
     scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive"]
-    # GitHub'a yüklediğin json dosyasının adı 'gizli-anahtar.json' olmalı
-    creds = ServiceAccountCredentials.from_json_keyfile_name('gizli-anahtar.json', scope)
+    
+    # Secrets içindeki JSON'u okuyoruz
+    creds_info = json.loads(st.secrets["gcp"]["gcp_json"])
+    
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_info, scope)
     return gspread.authorize(creds)
 
-def read_sheet(sheet_name):
-    try:
-        sh = get_sheets_client().open("LG_Satis_Verileri")
-        df = pd.DataFrame(sh.worksheet(sheet_name).get_all_records())
-        return df
-    except:
-        return pd.DataFrame()
-
-def write_sheet(df, sheet_name):
-    sh = get_sheets_client().open("LG_Satis_Verileri")
-    ws = sh.worksheet(sheet_name)
-    ws.clear()
-    ws.update([df.columns.values.tolist()] + df.values.tolist())
+# Geri kalan read_sheet ve write_sheet fonksiyonların AYNI kalsın...
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
