@@ -4,19 +4,35 @@ from datetime import date
 import calendar
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import json # Bu yeni eklendi
+import json
 
-# --- GOOGLE SHEETS BAĞLANTISI (YENİ GÜVENLİ YÖNTEM) ---
+# --- GOOGLE SHEETS BAĞLANTISI (SECRETS ÜZERİNDEN) ---
 def get_sheets_client():
     scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive"]
-    
-    # Secrets içindeki JSON'u okuyoruz
+    # Streamlit Secrets'tan JSON verisini alıyoruz
     creds_info = json.loads(st.secrets["gcp"]["gcp_json"])
-    
     creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_info, scope)
     return gspread.authorize(creds)
 
-# Geri kalan read_sheet ve write_sheet fonksiyonların AYNI kalsın...
+def read_sheet(sheet_name):
+    try:
+        client = get_sheets_client()
+        sh = client.open("LG_Satis_Verileri")
+        df = pd.DataFrame(sh.worksheet(sheet_name).get_all_records())
+        return df
+    except Exception as e:
+        # Eğer sayfa boşsa veya hata verirse boş bir şablon döner
+        if sheet_name == "Ürünler":
+            return pd.DataFrame(columns=["Model", "Liste_Fiyati", "Birim_Prim"])
+        return pd.DataFrame(columns=["Tarih", "Marka", "Model", "Ciro", "Prim", "Adet", "Not"])
+
+def write_sheet(df, sheet_name):
+    client = get_sheets_client()
+    sh = client.open("LG_Satis_Verileri")
+    ws = sh.worksheet(sheet_name)
+    ws.clear()
+    # Veriyi listeye çevirip Sheets'e basıyoruz
+    ws.update([df.columns.values.tolist()] + df.values.tolist())
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
@@ -53,6 +69,7 @@ if sekme == "📊 Dashboard & Satış":
     st.subheader("🖋️ Yeni Satış Kaydı")
     marka_secim = st.selectbox("Marka", ["LG", "Rakip"])
     def_fiyat, def_prim, secilen_model = 0.0, 0.0, "Diğer"
+    
     if marka_secim == "LG" and not st.session_state.urunler.empty:
         secilen_model = st.selectbox("Model Seç", st.session_state.urunler['Model'].tolist())
         bilgi = st.session_state.urunler[st.session_state.urunler['Model'] == secilen_model].iloc[0]
@@ -76,17 +93,19 @@ if sekme == "📊 Dashboard & Satış":
 # --- SAYFA 2: ANALİZLER ---
 elif sekme == "📊 Satış Analizleri":
     st.header("📈 Satış Analizleri")
-    df_lg = st.session_state.satislar[st.session_state.satislar['Marka'] == "LG"].copy()
-    if not df_lg.empty:
-        df_lg['Tarih'] = pd.to_datetime(df_lg['Tarih'])
-        bugun = pd.Timestamp.now()
-        def al(data): return data.groupby('Model')['Adet'].sum().reset_index().sort_values(by='Adet', ascending=False)
-        c1, c2, c3 = st.columns(3)
-        c1.write("**Tüm Zamanlar**"); c1.table(al(df_lg))
-        c2.write("**Son 30 Gün**"); c2.table(al(df_lg[df_lg['Tarih'] >= (bugun - pd.Timedelta(days=30))]))
-        c3.write("**Son 7 Gün**"); c3.table(al(df_lg[df_lg['Tarih'] >= (bugun - pd.Timedelta(days=7))]))
+    df_s = st.session_state.satislar.copy()
+    if not df_s.empty:
+        df_lg = df_s[df_s['Marka'] == "LG"].copy()
+        if not df_lg.empty:
+            df_lg['Tarih'] = pd.to_datetime(df_lg['Tarih'])
+            bugun = pd.Timestamp.now()
+            def al(data): return data.groupby('Model')['Adet'].sum().reset_index().sort_values(by='Adet', ascending=False)
+            c1, c2, c3 = st.columns(3)
+            c1.write("**Tüm Zamanlar**"); c1.table(al(df_lg))
+            c2.write("**Son 30 Gün**"); c2.table(al(df_lg[df_lg['Tarih'] >= (bugun - pd.Timedelta(days=30))]))
+            c3.write("**Son 7 Gün**"); c3.table(al(df_lg[df_lg['Tarih'] >= (bugun - pd.Timedelta(days=7))]))
     else:
-        st.info("Kayıt bulunamadı.")
+        st.info("Henüz kayıt bulunamadı.")
 
 # --- SAYFA 3: HEDEF DURUMU ---
 elif sekme == "🎯 Hedef Durumu":
@@ -102,7 +121,7 @@ elif sekme == "🎯 Hedef Durumu":
         c2.metric("Ay Sonu Tahmin", f"{tahmin:,.0f} TL")
         c3.metric("Hedef Başarı", f"%{(tahmin/aylik_hedef*100):.1f}")
     else:
-        st.info("Kayıt yok.")
+        st.info("Hesaplama için LG satışı girilmelidir.")
 
 # --- SAYFA 4: ÜRÜN TANIMLAMA ---
 else:
@@ -116,4 +135,5 @@ else:
             st.session_state.urunler = pd.concat([st.session_state.urunler, yeni], ignore_index=True)
             write_sheet(st.session_state.urunler, "Ürünler")
             st.rerun()
+    st.subheader("Kayıtlı Ürünler")
     st.table(st.session_state.urunler)
