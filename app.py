@@ -2,6 +2,26 @@ import streamlit as st
 import pandas as pd
 from datetime import date
 import calendar
+from streamlit_local_storage import LocalStorage
+
+local_storage = LocalStorage()
+
+# Veriyi telefondan geri çağır (Sayfa açıldığında)
+if 'satislar' not in st.session_state:
+    saved_data = local_storage.getItem("lg_satis_verileri")
+    if saved_data:
+        st.session_state.satislar = pd.DataFrame(saved_data)
+    else:
+        st.session_state.satislar = pd.DataFrame(columns=["Tarih", "Marka", "Model", "Ciro", "Prim", "Adet", "Not"])
+
+# Satış girildiğinde telefona kaydet
+if st.form_submit_button("SATIŞI GİR"):
+    # ... (y_satis oluşturma kodun)
+    st.session_state.satislar = pd.concat([st.session_state.satislar, y_satis], ignore_index=True)
+    
+    # İŞTE BURASI SİHİRLİ NOKTA: Telefona hapsediyoruz
+    local_storage.setItem("lg_satis_verileri", st.session_state.satislar.to_dict('records'))
+    st.rerun()
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="LG Sales Pro", layout="wide")
